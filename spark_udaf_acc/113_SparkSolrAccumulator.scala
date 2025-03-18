@@ -1,0 +1,39 @@
+//https://raw.githubusercontent.com/anialsonus/spark-solr/d5e8bb5f7a78d1cbe61ef48c6d5f4d1fcd072090/src/main/java/com/lucidworks/spark/SparkSolrAccumulator.scala
+package com.lucidworks.spark
+
+import java.lang.Long
+import org.apache.spark.util.AccumulatorV2
+
+class SparkSolrAccumulator extends AccumulatorV2[java.lang.Long, java.lang.Long] {
+  private var _count = 0L
+
+  override def isZero: Boolean = _count == 0
+
+  override def copy(): SparkSolrAccumulator = {
+    val newAcc = new SparkSolrAccumulator
+    newAcc._count = this._count
+    newAcc
+  }
+
+  override def reset(): Unit = {
+    _count = 0L
+  }
+
+  def count: Long = _count
+
+  override def value: Long = _count
+
+  def inc(): Unit = _count += 1
+
+   override def add(v: Long): Unit = {
+    _count += v
+  }
+
+   override def merge(other: AccumulatorV2[Long, Long]): Unit = other match {
+    case o: SparkSolrAccumulator =>
+      _count += o.count
+    case _ =>
+      throw new UnsupportedOperationException(
+        s"Cannot merge ${this.getClass.getName} with ${other.getClass.getName}")
+  }
+}
